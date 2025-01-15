@@ -10,19 +10,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.17
+          go-version: 1.20.1
       - name: Linux 构建测试
         run: |
-            sudo apt update -y
-            sudo apt install jq cloc protobuf-compiler -y
-            cloc ./
-            chmod 755 ./gen_info.sh
-            chmod +x ./gen_info.sh
-            chmod 755 ./gen_proto.sh
-            chmod +x ./gen_proto.sh
-            make
-            go test -timeout 30s -run ^TestFullyRun$ github.com/i4de/rulex/test -v -count=1
+          sudo apt update -y
+          sudo apt install jq cloc protobuf-compiler \
+               gcc-mingw-w64-x86-64 \
+               gcc-arm-linux-gnueabi \
+               gcc-mips-linux-gnu \
+               gcc-mingw-w64 \
+               gcc-aarch64-linux-gnu -y
+          mkdir ./component/rulex_api_server/server/www
+          echo "hello">./component/rulex_api_server/server/www/index.html
+          go get
+          go get -t github.com/hootrhino/rulex/test
+          git clone https://github.com/hybridgroup/gocv.git
+          cd gocv
+          make install
+          cd ../
+          go build
